@@ -5,4 +5,5 @@ export default {
         extend: {},
     },
     plugins: [],
+    safelist: ["border-slate-700", "border-emerald-500"],
 };
