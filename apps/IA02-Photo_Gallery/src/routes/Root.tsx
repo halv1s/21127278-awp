@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { IPhoto, QueryKey } from './utils/types';
-import localPhotos from './utils/localCache/photos.json';
-import Loading from './components/Loading';
-import PhotoPreview from './components/PhotoPreview';
+import { IPhoto, QueryKey } from '../utils/types';
+import localPhotos from '../utils/localCache/photos.json';
+import Loading from '../components/Loading';
+import PhotoPreview from '../components/PhotoPreview';
 import { useState } from 'react';
 
-function App() {
+function RootScreen() {
   const { data, isLoading } = useQuery({
     queryKey: [QueryKey.Photos],
     queryFn: async () => {
@@ -62,4 +62,4 @@ function App() {
   );
 }
 
-export default App;
+export default RootScreen;
