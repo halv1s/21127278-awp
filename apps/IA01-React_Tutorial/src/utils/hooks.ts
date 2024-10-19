@@ -71,14 +71,26 @@ export const useTicTacToe = () => {
 
         setBoard(newBoard);
 
+        setCurrentTurn(currentTurn === IPlayer.X ? IPlayer.O : IPlayer.X);
+
         const { result, winningCells } = checkBoardResult(newBoard);
+
         if (result !== GameStatus.OnGoing) {
             setWinningCells(winningCells);
             setGameStatus(result);
-            return;
         }
+    };
+
+    const undo = () => {
+        if (history.length === 0) return;
+
+        const previousBoard = history[history.length - 1];
+        setBoard(previousBoard);
+        setHistory(history.slice(0, -1));
 
         setCurrentTurn(currentTurn === IPlayer.X ? IPlayer.O : IPlayer.X);
+        setGameStatus(GameStatus.OnGoing);
+        setWinningCells([]);
     };
 
     return {
@@ -89,6 +101,7 @@ export const useTicTacToe = () => {
         winningCells,
         handleMove,
         resetGame,
+        undo,
     };
 };
 

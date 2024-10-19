@@ -9,6 +9,12 @@ export enum IPlayer {
     O = "O",
 }
 
+export enum CellStatus {
+    Normal,
+    Highlighted,
+    Disabled,
+}
+
 export enum GameStatus {
     OnGoing,
     Draw,
