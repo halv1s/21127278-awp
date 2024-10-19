@@ -3,12 +3,11 @@ import { IPhoto } from '../utils/types';
 
 interface Props {
   photo: IPhoto;
-  onClick?: () => void;
 }
 
 const PhotoPreview: FC<Props> = ({ photo }) => {
   return (
-    <div className="group flex flex-col gap-2 max-w-80">
+    <div className="group flex flex-col gap-2 w-full max-w-80">
       <img
         className="w-full aspect-square object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
         src={photo.thumb}

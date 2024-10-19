@@ -4,13 +4,14 @@ import localPhotos from '../utils/localCache/photos.json';
 import Loading from '../components/Loading';
 import PhotoPreview from '../components/PhotoPreview';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 function RootScreen() {
   const { data, isLoading } = useQuery({
     queryKey: [QueryKey.Photos],
     queryFn: async () => {
-      // Simulate a loading delay from 1 -> 2 secs
-      const delay = Math.floor(Math.random() * 1000) + 1000;
+      // Simulate a loading delay from 0.5 -> 1.5 secs
+      const delay = Math.floor(Math.random() * 500) + 1000;
       await new Promise((resolve) => setTimeout(resolve, delay));
 
       const photos: IPhoto[] = [];
@@ -48,14 +49,15 @@ function RootScreen() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {data.map((photo) => (
-          <div
+          <Link
             key={photo.id}
+            to={`/photos/${photo.id}`}
             onMouseEnter={() => setIsBackdropShown(true)}
             onMouseLeave={() => setIsBackdropShown(false)}
             className="hover:z-20"
           >
             <PhotoPreview photo={photo} />
-          </div>
+          </Link>
         ))}
       </div>
     </section>
