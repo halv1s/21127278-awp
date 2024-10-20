@@ -2,23 +2,71 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { IPhoto, QueryKey } from '../utils/types';
 import Loading from '../components/Loading';
+import { useState } from 'react';
+import localPhotoRawJson from '../utils/localCache/photos.json';
 
 const PhotoDetailsScreen = () => {
   const { id } = useParams();
+
+  const [isRateLimited, setIsRateLimited] = useState(false);
 
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: [`photo-${id}`],
     queryFn: async () => {
-      const cachedPhotos =
-        (queryClient.getQueryData([QueryKey.Photos]) as IPhoto[]) || [];
-      const cachedPhoto = cachedPhotos.find((photo) => photo.id === id);
-      if (cachedPhoto) {
-        return cachedPhoto;
+      let cachedPhotos: IPhoto[] = [];
+
+      const cachedData = queryClient.getQueryData([QueryKey.Photos]) as {
+        pages: {
+          data: IPhoto[];
+        }[];
+      };
+
+      if (cachedData) {
+        cachedPhotos = cachedData.pages.reduce((acc, cur) => {
+          return [...acc, ...cur.data];
+        }, [] as IPhoto[]);
+      } else {
+        cachedPhotos = localPhotoRawJson.map((localPhoto) => ({
+          id: localPhoto.id,
+          url: localPhoto.urls.full,
+          thumb: localPhoto.urls.thumb,
+          authorName: localPhoto.user.name,
+          authorAvatar: localPhoto.user.profile_image.medium,
+          desc: localPhoto.description || localPhoto.alt_description,
+        }));
       }
 
-      // TODO: use api to get the specific photo
+      const cachedPhoto = cachedPhotos.find((photo) => photo.id === id);
+
+      if (cachedPhoto) {
+        console.log('--> cache hit');
+        return cachedPhoto;
+      } else {
+        console.log('--> cache missed');
+      }
+
+      const res = await fetch(`https://api.unsplash.com/photos/${id}`, {
+        headers: {
+          Authorization: `Client-ID ${import.meta.env.VITE_UNSPLASH_ACCESS_KEY}`,
+        },
+      });
+
+      const photo = await res.json();
+
+      if (res.status === 403) {
+        setIsRateLimited(true);
+      } else if (res.status >= 200 && res.status <= 299) {
+        return {
+          id: photo.id,
+          url: photo.urls.full,
+          thumb: photo.urls.thumb,
+          authorName: photo.user.name,
+          authorAvatar: photo.user.profile_image.medium,
+          desc: photo.description || photo.alt_description,
+        };
+      }
 
       return null;
     },
@@ -35,7 +83,9 @@ const PhotoDetailsScreen = () => {
   if (!data) {
     return (
       <div className="h-screen grid place-content-center">
-        <p className="text-2xl">Photo not found!</p>
+        <p className="text-2xl">
+          {isRateLimited ? 'Rate limited' : 'Photo not found!'}
+        </p>
       </div>
     );
   }

@@ -4,10 +4,10 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { Link } from 'react-router-dom';
 import Loading from '../components/Loading';
 import PhotoPreview from '../components/PhotoPreview';
-import localPhotos from '../utils/localCache/photos.json';
+import localPhotoRawJson from '../utils/localCache/photos.json';
 import { IPhoto, QueryKey } from '../utils/types';
 
-const cachedPhotos: IPhoto[] = localPhotos.map((localPhoto) => ({
+const localPhotos: IPhoto[] = localPhotoRawJson.map((localPhoto) => ({
   id: localPhoto.id,
   url: localPhoto.urls.full,
   thumb: localPhoto.urls.thumb,
@@ -19,7 +19,7 @@ const cachedPhotos: IPhoto[] = localPhotos.map((localPhoto) => ({
 const photosPerPage = 30;
 
 function PhotosScreen() {
-  const [isCachedPhotosShown, setIsCachedPhotoShown] = useState(false);
+  const [isLocalPhotosShown, setIsLocalPhotoShown] = useState(false);
 
   const { status, data, fetchNextPage, hasNextPage } = useInfiniteQuery({
     queryKey: [QueryKey.Photos],
@@ -47,7 +47,7 @@ function PhotosScreen() {
         };
       }
 
-      const rawData: typeof localPhotos = await res.json();
+      const rawData: typeof localPhotoRawJson = await res.json();
 
       const photos: IPhoto[] = [];
 
@@ -138,19 +138,19 @@ function PhotosScreen() {
             </div>
 
             <button
-              className="bg-sky-700 hover:bg-sky-600 disabled:bg-slate-500 transition-colors rounded-lg text-lg text-white px-6 py-2"
-              disabled={isCachedPhotosShown}
-              onClick={() => setIsCachedPhotoShown(true)}
+              className="bg-sky-500 hover:bg-sky-600 disabled:bg-slate-500 transition-colors rounded-lg text-lg text-white px-6 py-2"
+              disabled={isLocalPhotosShown}
+              onClick={() => setIsLocalPhotoShown(true)}
             >
-              {isCachedPhotosShown
-                ? 'Cached photos rendered below'
-                : 'Render cached photos'}
+              {isLocalPhotosShown
+                ? 'Local photos rendered below'
+                : 'Render local photos'}
             </button>
           </div>
         )}
 
-        {isCachedPhotosShown &&
-          cachedPhotos.map((photo) => (
+        {isLocalPhotosShown &&
+          localPhotos.map((photo) => (
             <Link
               key={photo.id}
               to={`/photos/${photo.id}`}
