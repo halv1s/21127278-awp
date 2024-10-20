@@ -95,7 +95,7 @@ const PhotoDetailsScreen = () => {
       <h2 className="text-2xl text-center text-pretty">{data.desc}</h2>
       <img src={data.url} className="max-h-96 rounded-lg" />
       <div className="flex flex-col items-center gap-4">
-        <p className="text-lg font-semibold">
+        <p className="text-lg font-semibold text-center">
           by <span className="text-sky-700">{data.authorName}</span>
         </p>
         <img src={data.authorAvatar} className="w-16 h-16 rounded-full" />
