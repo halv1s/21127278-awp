@@ -6,7 +6,8 @@ export const useTicTacToe = () => {
 
   const [currentTurn, setCurrentTurn] = useState(IPlayer.X);
 
-  const [history, setHistory] = useState<(typeof board)[]>([]);
+  const [historyBoard, setHistoryBoard] = useState<(typeof board)[]>([]);
+  const [historyMoves, setHistoryMoves] = useState<number[][]>([]);
 
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.OnGoing);
 
@@ -21,7 +22,8 @@ export const useTicTacToe = () => {
     setCurrentTurn(IPlayer.X);
     setGameStatus(GameStatus.OnGoing);
     setWinningCells([]);
-    setHistory([]);
+    setHistoryBoard([]);
+    setHistoryMoves([]);
   };
 
   const checkBoardResult = (newBoard: ISquare[][]) => {
@@ -65,7 +67,9 @@ export const useTicTacToe = () => {
       ),
     );
 
-    setHistory([...history, board]);
+    setHistoryBoard([...historyBoard, board]);
+
+    setHistoryMoves([...historyMoves, [row, col]]);
 
     setBoard(newBoard);
 
@@ -80,11 +84,12 @@ export const useTicTacToe = () => {
   };
 
   const undo = () => {
-    if (history.length === 0) return;
+    if (historyBoard.length === 0) return;
 
-    const previousBoard = history[history.length - 1];
+    const previousBoard = historyBoard[historyBoard.length - 1];
     setBoard(previousBoard);
-    setHistory(history.slice(0, -1));
+    setHistoryBoard(historyBoard.slice(0, -1));
+    setHistoryMoves(historyMoves.slice(0, -1));
 
     setCurrentTurn(currentTurn === IPlayer.X ? IPlayer.O : IPlayer.X);
     setGameStatus(GameStatus.OnGoing);
@@ -94,7 +99,8 @@ export const useTicTacToe = () => {
   return {
     board,
     currentTurn,
-    history,
+    historyBoard,
+    historyMoves,
     gameStatus,
     winningCells,
     handleMove,
