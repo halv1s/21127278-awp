@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="mt-24 flex flex-col justify-center items-center gap-4">
+    <div className="flex flex-col justify-center items-center gap-4">
       <Link href="/register">
         <button>Register</button>
       </Link>
