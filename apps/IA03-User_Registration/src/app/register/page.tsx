@@ -1,11 +1,17 @@
 'use client';
 
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { useState } from 'react';
 
 type RegisterFormData = {
   email: string;
   password: string;
   confirmPassword: string;
+};
+
+type ApiResponse = {
+  message: string;
+  success: boolean;
 };
 
 export default function RegisterPage() {
@@ -16,11 +22,47 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm<RegisterFormData>();
 
-  const onSubmit: SubmitHandler<RegisterFormData> = (data) => console.log(data);
+  const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit: SubmitHandler<RegisterFormData> = async (data) => {
+    setLoading(true);
+    setApiResponse(null);
+
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setApiResponse({ message: 'Registration successful', success: true });
+      } else {
+        setApiResponse({
+          message: result.message || 'Registration failed',
+          success: false,
+        });
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      setApiResponse({
+        message: 'An unexpected error occurred',
+        success: false,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const passwordValue = watch('password');
-
-  console.log('--> errs', errors);
 
   return (
     <div className="flex flex-col items-center gap-8">
@@ -61,8 +103,19 @@ export default function RegisterPage() {
           )}
         </div>
 
-        <button type="submit">Submit</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Submitting...' : 'Submit'}
+        </button>
       </form>
+
+      {apiResponse && (
+        <p
+          className="api-response"
+          style={{ color: apiResponse.success ? 'green' : 'red' }}
+        >
+          {apiResponse.message}
+        </p>
+      )}
     </div>
   );
 }
