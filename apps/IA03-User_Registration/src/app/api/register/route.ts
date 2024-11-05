@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
+import { db } from '../lib/firebase';
 
 type RegisterRequestBody = {
   email: string;
@@ -32,10 +33,20 @@ export async function POST(req: Request) {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(body.password, saltRounds);
 
-    // TODO: replace with the database logic
-    console.log('Registering user:', {
+    const usersCollection = db.collection('users');
+    const userDoc = await usersCollection.doc(body.email).get();
+
+    if (userDoc.exists) {
+      return NextResponse.json(
+        { message: 'User already exists' },
+        { status: 400 },
+      );
+    }
+
+    await usersCollection.doc(body.email).set({
       email: body.email,
       password: hashedPassword,
+      createdAt: new Date(),
     });
 
     return NextResponse.json(

@@ -81,7 +81,13 @@ export default function RegisterPage() {
           <label>Password</label>
           <input
             type="password"
-            {...register('password', { required: 'Password is required' })}
+            {...register('password', {
+              required: 'Password is required',
+              minLength: {
+                value: 4,
+                message: 'Password must be at least 4 characters long',
+              },
+            })}
           />
           {errors.password && (
             <p className="error-text">{errors.password.message}</p>
@@ -109,10 +115,7 @@ export default function RegisterPage() {
       </form>
 
       {apiResponse && (
-        <p
-          className="api-response"
-          style={{ color: apiResponse.success ? 'green' : 'red' }}
-        >
+        <p className={`${apiResponse.success ? 'success-text' : 'error-text'}`}>
           {apiResponse.message}
         </p>
       )}

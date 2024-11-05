@@ -38,6 +38,9 @@ body {
   .input-wrapper {
     @apply flex flex-col gap-1;
   }
+  .success-text {
+    @apply text-sm text-green-500;
+  }
   .error-text {
     @apply text-sm text-red-500;
   }
