@@ -2,7 +2,7 @@
 
 import { useForm, SubmitHandler } from 'react-hook-form';
 
-type FormData = {
+type RegisterFormData = {
   email: string;
   password: string;
   confirmPassword: string;
@@ -14,9 +14,9 @@ export default function RegisterPage() {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<RegisterFormData>();
 
-  const onSubmit: SubmitHandler<FormData> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<RegisterFormData> = (data) => console.log(data);
 
   const passwordValue = watch('password');
 
