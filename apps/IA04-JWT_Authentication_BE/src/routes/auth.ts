@@ -17,7 +17,7 @@ router.post('/register', async (req: Request, res: Response) => {
   try {
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      res.status(400).send('Username already taken');
+      res.status(400).json({ message: 'Username already taken' });
       return;
     }
 
@@ -25,10 +25,10 @@ router.post('/register', async (req: Request, res: Response) => {
     const newUser = new User({ username, password: hashedPassword });
     await newUser.save();
 
-    res.status(201).send('User registered successfully');
+    res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).send('Error registering user');
+    res.status(500).json({ message: 'Error registering user' });
   }
 });
 
@@ -38,13 +38,17 @@ router.post('/login', async (req: Request, res: Response) => {
   try {
     const user = await User.findOne({ username });
     if (!user) {
-      res.status(400).send('User not found');
+      res.status(400).json({
+        message: 'User not found',
+      });
       return;
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      res.status(400).send('Invalid password');
+      res.status(400).json({
+        message: 'Invalid password',
+      });
       return;
     }
 
@@ -54,11 +58,29 @@ router.post('/login', async (req: Request, res: Response) => {
       { expiresIn: process.env.JWT_EXPIRES_IN },
     );
 
-    res.json({ token });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+
+    res.json({ message: 'Logged in successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).send('Error logging in');
+    res.status(500).json({
+      message: 'Error logging in',
+    });
   }
+});
+
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
+  res.status(200).json({ message: 'Logged out successfully' });
 });
 
 export default router;

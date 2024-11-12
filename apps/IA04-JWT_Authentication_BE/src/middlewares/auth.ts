@@ -6,17 +6,15 @@ export const authenticateJWT: RequestHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  const token = (req.headers.Authorization as string | undefined)?.split(
-    ' ',
-  )[1];
+  const token = req.cookies.token as string | undefined;
   if (!token) {
-    res.status(401).send('Access denied');
+    res.status(401).json({ message: 'Access denied' });
     return;
   }
 
   jwt.verify(token, process.env.JWT_SECRET as string, (err, payload) => {
     if (err) {
-      res.status(403).send('Invalid token');
+      res.status(403).json({ message: 'Invalid token' });
       return;
     }
 
